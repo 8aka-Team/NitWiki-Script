@@ -34,7 +34,7 @@ def downloads():
     download_task("PlugManx", "https://github.com/Test-Account666/PlugManX/releases/download/2.4.0/PlugManX-2.4.0.jar")
     download_task("WorldEdit", "https://ci.enginehub.org/repository/download/bt10/23766:id/worldedit-bukkit-7.3.1"
                                "-SNAPSHOT-dist.jar?branch=version/7.3.x&guest=1")
-    download_task("EssentialsX", "https://dl.yizhan.wiki/plugins/EssentialsX-2.21.0-dev%2B110-f1a5caf.jar")
+    download_task("EssentialsX", "https://dl.8aka.org/plugins/EssentialsX-2.21.0-dev%2B110-f1a5caf.jar")
     download_task("Multiverse-Core", "https://ci.onarandombox.com/job/Multiverse-Core/870/artifact/target/Multiverse"
                                      "-Core-4.3.2-SNAPSHOT.jar")
     download_task("AuthMe", "https://cdn.modrinth.com/data/3IEZ9vol/versions/oezVemzR/AuthMe-5.7.0-FORK-Universal.jar")

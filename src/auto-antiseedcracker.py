@@ -27,7 +27,7 @@ def config_leaf_global(leaf):
 
 def download_antiseedcracker():
     print("开始下载AntiSeedCracker")
-    download(r"https://dl.yizhan.wiki/plugins/AntiSeedCracker-1.2.1.jar",
+    download(r"https://dl.8aka.org/plugins/AntiSeedCracker-1.2.1.jar",
              "plugins/AntiSeedCracker-1.2.0.jar")
     print("下载完成")
 

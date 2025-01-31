@@ -102,7 +102,7 @@ def setup_plugin(auto_install=False):
                  "plugins/floodgate-skript-2.1.jar")
 
     if ask("安装基岩版菜单制作插件"):
-        download("https://dl.yizhan.wiki/plugins/MagicMenu-1.0.3.jar",
+        download("https://dl.8aka.org/plugins/MagicMenu-1.0.3.jar",
                  "plugins/Geyser-Spigot/extensions/MagicMenu-1.0.3.jar")
 
 
