@@ -229,6 +229,7 @@ def optimize_gale_world(gale):
 
 @handler('config/gale-global.yml')
 def optimize_gale_global(gale):
+    gale["small-optimizations"]["reduced-intervals"]["increase-time-statistics"] = 100
     gale["small-optimizations"]["reduced-intervals"]["update-entity-line-of-sight"] = 10
 
 
@@ -301,10 +302,20 @@ def optimize_leaf_global(leaf):
     dab = leaf["performance"]["dab"]
     dab["max-tick-freq"] = 20
     dab["activation-dist-mod"] = 7
+    dab["start-distance"] = 8
     if not danger:
         dab["dont-enable-if-in-water"] = True
     leaf["performance"]["dont-save-entity"]["dont-save-primed-tnt"] = True
     leaf["performance"]["dont-save-entity"]["dont-save-falling-block"] = True
+    leaf["performance"]["entity-timeouts"]["SNOWBALL"] = 200
+    leaf["performance"]["entity-timeouts"]["LLAMA_SPIT"] = 150
+    leaf["performance"]["entity-timeouts"]["DRAGON_FIREBALL"] = 150
+    leaf["performance"]["entity-timeouts"]["EGG"] = 300
+    leaf["performance"]["entity-timeouts"]["FIREBALL"] = 600
+    leaf["performance"]["entity-timeouts"]["SMALL_FIREBALL"] = 400
+    leaf["performance"]["entity-timeouts"]["WIND_CHARGE"] = 200
+    leaf["performance"]["entity-timeouts"]["BREEZE_WIND_CHARGE"] = 200
+    leaf["performance"]["entity-timeouts"]["WITHER_SKULL"] = 200
     leaf["gameplay-mechanisms"]["player"]["disable-moved-wrongly-threshold"] = True
     leaf["misc"]["lag-compensation"]["enabled"] = True
     leaf["misc"]["lag-compensation"]["enable-for-water"] = True
