@@ -2,18 +2,20 @@ from textwrap import dedent as _
 from utils import *
 from psutil import virtual_memory
 import platform
+import subprocess
 
 
 script_license()
 print("此向导将会自动为你生成启动脚本!")
+print("注意,在回答本脚本某些问题时键入" + "\033[33 y \033[0m" + "表示确认或者是, 否则请键入" + "\033[33 n \033[0m" + "表示否定或不是\n")
 
 
 def detect_jar():
     for i in os.listdir(os.getcwd()):
         if not os.path.isdir(i) and i.endswith(".jar"):
-            print(f"找到服务端核心{i}!!")
+            print("找到服务端核心" + f"\033[32m{i}\033[0m!!\n")
             return i
-    print("没有发现服务端核心")
+    print("没有发现服务端核心,请将此脚本和服务端核心放在同一目录下再使用\n")
     return
 
 
@@ -29,7 +31,8 @@ def detect_brand(name):
     if len(a) >= 2:
         meta.minecraft_version = int(a[1].split(".")[1])
     else:
-        meta.minecraft_version = int(input("您使用的Minecraft版本(格式:1.x或1.x.x)?").split(".")[1])
+        meta.minecraft_version = int(input("请输入您使用的"+"\033[32mMinecraft版本\033[0m"+"(格式:1.x或1.x.x)?").split(".")[1])
+        print()
 
     if a[0].lower() == "leaf":
         meta.leaf = True
@@ -43,42 +46,75 @@ def detect_brand(name):
     if a[0] == "paper":
         return meta
 
-    if ask("使用的是Leaf?"):
+    if ask("使用的是" + "\033[32m Leaf \033[0m" + "端?"):
         meta.leaf = True
         meta.pufferfish = True
         return meta
 
-    if ask("使用的是Pufferfish或下游(Purpur,Gale,Leaves)(不包含Paper)?"):
+    if ask("使用的是" + "\033[33m Pufferfish \033[0m" + "端或下游(Purpur,Gale,Leaves)" + "(\033[31m不包含Paper\033[0m)" + "?"):
         meta.pufferfish = True
         return meta
 
 
 def ask(title):
-    select = input(title + "(y/n):")
-    if select.lower().startswith("y"):
-        return True
-    return False
+    while True:
+        select = input(title + "(y/n):")
+        if select.lower().startswith("y"):
+            print()
+            return True
+        elif select.lower().startswith("n"):
+            print()
+            return False
+        else:
+            print("\033[31m输入错误,请输入 y 或者 n\033[0m\n")
 
 
 def get_memory():
     return int(virtual_memory().available / (1024 * 1024))  # to MB
 
 
+def get_java(path, check):
+    try:
+        result = subprocess.run([path, "-version"], capture_output=True, text=True)
+        print("成功检测到java!版本为:")
+        print(result.stderr)
+        return True
+
+    except FileNotFoundError or subprocess.CalledProcessError:
+        if check:
+            print("\033[31m警告,找不到java,请重新指定java路径,或者不自行指定java!\033[0m\n")
+        else:
+            print("\033[31m警告,找不到java,请检查java环境变量或手动指定java路径!\033[0m\n")
+
+        return False
+
+
 def generate_command(server: str, meta: VersionMeta):
-    if ask("自动检测使用内存"):
+    while True:
+        if ask("自行指定 java 路径?"):
+            java = input("请输入 java 路径(应当以 java.exe 结尾, 如 D:/jdk/bin/java.exe):")
+            if get_java(java, True):
+                java = '"'+java+'"'
+                break
+        else:
+            if get_java("java", False):
+                java = "java"
+                break
+
+    if ask("自动检测使用内存?"):
         memory = get_memory() - 1000  # to MB
         if memory / 1024 > 20:
             memory = 20 * 1024
-        print(f"自动使用内存{memory}MB")
+        print(f"\033[32m自动使用内存{memory}MB\033[0m\n")
     else:
         memory = int(input("内存(至少1024MB,不建议为服务器分配少于2048MB的内存)(单位为MB,输入时不带单位):"))
         if memory / 1024 > 20:
             print("不建议为您的服务器分配超过 16-20GB 的内存,给 Java 太多的内存可能会损害服务器的性能")
 
     if not ask("使用优化参数(推荐使用)?"):
-        return f"java -Xms{memory}M -Xmx{memory}M -jar {server}"
+        return f"{java} -Xms{memory}M -Xmx{memory}M -jar {server}"
 
-    base = (f"java -Xms1024M -Xmx{memory}M -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+UseFMA "
+    base = (f"{java} -Xms1024M -Xmx{memory}M -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+UseFMA "
             f"-XX:+UseVectorCmov -XX:+UseNewLongLShift -XX:+UseFastStosb -XX:+SegmentedCodeCache "
             f"-XX:+OptimizeStringConcat -XX:+DoEscapeAnalysis -XX:+OmitStackTraceInFastThrow "
             f"-XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC "
@@ -101,7 +137,7 @@ def generate_command(server: str, meta: VersionMeta):
 
     base += f"-jar {server} "
 
-    if ask("关闭GUI(GUI没啥用)(推荐关闭)"):
+    if ask("关闭服务端自带GUI(GUI没啥用)(推荐关闭)"):
         base += "--nogui"
 
     return base
