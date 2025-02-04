@@ -16,7 +16,7 @@ def apply_config():
         if os.path.isdir(os.path.join(os.getcwd(), "plugins", p)) and (p in c):
             shutil.rmtree(os.path.join(os.getcwd(), "plugins", p))
             shutil.move(os.path.join(os.getcwd(), "temp", p), os.path.join(os.getcwd(), "plugins"))
-            print(f"成功应用配置{p}")
+            print(f"成功应用配置: {p}")
 
 
 @handler("plugins/ViaBackwards/config.yml")
@@ -26,7 +26,7 @@ def config_via(via):
 
 def install_obfuscator():
     if ask("安装AntiCheatObfuscator(反作弊混淆器)"):
-        download("https://cdn.modrinth.com/data/Tr96sBMe/versions/n5HBUcnR/AntiCheatObfuscator-1.2.6.jar",
+        download("https://cdn.modrinth.com/data/Tr96sBMe/versions/XfUCjLLP/AntiCheatObfuscator-1.4.5.jar",
                  "plugins/AntiCheatObfuscator.jar")
 
 

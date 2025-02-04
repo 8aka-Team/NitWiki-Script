@@ -1,13 +1,12 @@
+import zipfile
 from textwrap import dedent as _
 from utils import *
 from psutil import virtual_memory
 import platform
 import subprocess
 
-
 script_license()
 print("此向导将会自动为你生成启动脚本!")
-print("注意,在回答本脚本某些问题时键入" + "\033[33 y \033[0m" + "表示确认或者是, 否则请键入" + "\033[33 n \033[0m" + "表示否定或不是\n")
 
 
 def detect_jar():
@@ -25,35 +24,19 @@ class VersionMeta:
     minecraft_version: int = 0
 
 
-def detect_brand(name):
+def detect_brand(jar_path):
     meta = VersionMeta()
-    a = name.rsplit(".", 1)[0].split("-")
-    if len(a) >= 2:
-        meta.minecraft_version = int(a[1].split(".")[1])
-    else:
-        meta.minecraft_version = int(input("请输入您使用的"+"\033[32mMinecraft版本\033[0m"+"(格式:1.x或1.x.x)?").split(".")[1])
-        print()
-
-    if a[0].lower() == "leaf":
-        meta.leaf = True
-        meta.pufferfish = True
-        return meta
-
-    if a[0] in ["pufferfish", "purpur", "leaves", "gale"]:
-        meta.pufferfish = True
-        return meta
-
-    if a[0] == "paper":
-        return meta
-
-    if ask("使用的是" + "\033[32m Leaf \033[0m" + "端?"):
-        meta.leaf = True
-        meta.pufferfish = True
-        return meta
-
-    if ask("使用的是" + "\033[33m Pufferfish \033[0m" + "端或下游(Purpur,Gale,Leaves)" + "(\033[31m不包含Paper\033[0m)" + "?"):
-        meta.pufferfish = True
-        return meta
+    with zipfile.ZipFile(jar_path, 'r') as jar:
+        if 'META-INF/versions.list' in jar.namelist():
+            manifest_data = jar.read('META-INF/versions.list').decode('utf-8')
+            a = manifest_data.split('\t')
+            meta.version = int(a[1].split('.')[1])
+            brand = a[2].split('/')[1].split('-')[0].lower()
+            if brand == 'leaf':
+                meta.leaf = True
+            if brand in ["pufferfish", "purpur", "leaves", "gale", "leaf"]:
+                meta.pufferfish = True
+    return meta
 
 
 def ask(title):
@@ -94,7 +77,7 @@ def generate_command(server: str, meta: VersionMeta):
         if ask("自行指定 java 路径?"):
             java = input("请输入 java 路径(应当以 java.exe 结尾, 如 D:/jdk/bin/java.exe):")
             if get_java(java, True):
-                java = '"'+java+'"'
+                java = '"' + java + '"'
                 break
         else:
             if get_java("java", False):
@@ -114,20 +97,21 @@ def generate_command(server: str, meta: VersionMeta):
     if not ask("使用优化参数(推荐使用)?"):
         return f"{java} -Xms{memory}M -Xmx{memory}M -jar {server}"
 
-    base = (f"{java} -Xms1024M -Xmx{memory}M -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+UseFMA "
-            f"-XX:+UseVectorCmov -XX:+UseNewLongLShift -XX:+UseFastStosb -XX:+SegmentedCodeCache "
-            f"-XX:+OptimizeStringConcat -XX:+DoEscapeAnalysis -XX:+OmitStackTraceInFastThrow "
-            f"-XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC "
-            f"-XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M "
-            f"-XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods "
-            f"-XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem "
-            f"-XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 "
-            f"-XX:AllocatePrefetchStyle=3 -XX:+UseG1GC -XX:MaxGCPauseMillis=37 -XX:+PerfDisableSharedMem "
-            f"-XX:G1HeapRegionSize=16M -XX:G1NewSizePercent=23 -XX:G1ReservePercent=20 -XX:SurvivorRatio=32 "
-            f"-XX:G1MixedGCCountTarget=3 -XX:G1HeapWastePercent=20 -XX:InitiatingHeapOccupancyPercent=10 "
-            f"-XX:G1RSetUpdatingPauseTimePercent=0 -XX:MaxTenuringThreshold=1 "
-            f"-XX:G1SATBBufferEnqueueingThresholdPercent=30 -XX:G1ConcMarkStepDurationMillis=5.0 -XX:GCTimeRatio=99 "
-            f"-XX:G1ConcRefinementServiceIntervalMillis=150 -XX:G1ConcRSHotCardLimit=16 ")
+    base = (
+        f"{java} -Xms1024M -Xmx{memory}M -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+UseFMA "
+        f"-XX:+UseVectorCmov -XX:+UseNewLongLShift -XX:+UseFastStosb -XX:+SegmentedCodeCache "
+        f"-XX:+OptimizeStringConcat -XX:+DoEscapeAnalysis -XX:+OmitStackTraceInFastThrow "
+        f"-XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC "
+        f"-XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M "
+        f"-XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods "
+        f"-XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem "
+        f"-XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 "
+        f"-XX:AllocatePrefetchStyle=3 -XX:+UseG1GC -XX:MaxGCPauseMillis=37 -XX:+PerfDisableSharedMem "
+        f"-XX:G1HeapRegionSize=16M -XX:G1NewSizePercent=23 -XX:G1ReservePercent=20 -XX:SurvivorRatio=32 "
+        f"-XX:G1MixedGCCountTarget=3 -XX:G1HeapWastePercent=20 -XX:InitiatingHeapOccupancyPercent=10 "
+        f"-XX:G1RSetUpdatingPauseTimePercent=0 -XX:MaxTenuringThreshold=1 "
+        f"-XX:G1SATBBufferEnqueueingThresholdPercent=30 -XX:G1ConcMarkStepDurationMillis=5.0 -XX:GCTimeRatio=99 "
+        f"-XX:G1ConcRefinementServiceIntervalMillis=150 -XX:G1ConcRSHotCardLimit=16 ")
 
     if meta.pufferfish and meta.minecraft_version >= 18:
         base += "--add-modules=jdk.incubator.vector "
@@ -190,7 +174,7 @@ def generate_batch(command, restart):
                     echo "MC服务器已关闭"
                 """))
     else:
-        raise OSError("Unsupported operating system")
+        raise OSError("不支持的操作系统")
 
 
 if __name__ == "__main__":
@@ -199,4 +183,5 @@ if __name__ == "__main__":
         exit_()
     command = generate_command(server, detect_brand(server))
     generate_batch(command, ask("开启自动重启?"))
+    print("生成完毕")
     exit_()

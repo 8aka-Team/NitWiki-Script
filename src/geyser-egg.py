@@ -77,8 +77,8 @@ def install_extend(auto_install=False):
 
 def setup_plugin(auto_install=False):
     if os.path.exists("plugins/Slimefun") and ask("安装Slimefun材质兼容(需要Slimefun Resource Pack)"):
-        download("https://qcymc.cloud/f/QWRHo/Slimefun.mcpack", "plugins/Geyser-Spigot/packs/Slimefun.mcpack")
-        download("https://qcymc.cloud/f/R6DT5/RYSurvival-SlimefunMapping.jar",
+        download("https://dl.8aka.org/plugins/Slimefun.mcpack", "plugins/Geyser-Spigot/packs/Slimefun.mcpack")
+        download("https://dl.8aka.org/plugins/RYSurvival-SlimefunMapping.jar",
                  "plugins/Geyser-Spigot/extensions/RYSurvival-SlimefunMapping.jar")
     if os.path.exists("plugins/Residence") and (auto_install or ask("安装Residence基岩版菜单兼容")):
         download("https://github.com/RenYuan-MC/ResidenceForm/releases/download/dev/ResidenceForm.jar",
