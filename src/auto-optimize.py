@@ -280,13 +280,11 @@ def optimize_leaf_legacy(leaf):
 @handler("config/leaf-global.yml")
 def optimize_leaf_global(leaf):
     leaf["async"]["async-pathfinding"]["enabled"] = True
-    leaf["async"]["async-pathfinding"]["max-threads"] = os.cpu_count() / 4
     leaf["async"]["async-mob-spawning"]["enabled"] = True
     leaf["async"]["async-entity-tracker"]["enabled"] = True
-    leaf["async"]["async-entity-tracker"]["max-threads"] = os.cpu_count() / 2
     leaf["async"]["async-locator"]["enabled"] = True
-    leaf["async"]["async-locator"]["max-threads"] = 1
     leaf["async"]["async-playerdata-save"]["enabled"] = True
+    leaf["async"]["async-chunk-send"]["enabled"] = True
     if ask("使用 Citizens"):
         leaf["async"]["async-entity-tracker"]["compat-mode"] = True
     if danger:
@@ -320,6 +318,7 @@ def optimize_leaf_global(leaf):
     leaf["misc"]["lag-compensation"]["enabled"] = True
     leaf["misc"]["lag-compensation"]["enable-for-water"] = True
     leaf["misc"]["lag-compensation"]["enable-for-lava"] = True
+    leaf["network"]["connection-flush-queue-rewrite"] = True
 
 
 if __name__ == "__main__":
