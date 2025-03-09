@@ -86,7 +86,7 @@ def download(url, local_filepath):
         p = parse.urlparse(url)
         if p.netloc == "github.com":
             url = "https://gh.ddlc.top/" + url
-        with requests.get(url, stream=True, headers=headers) as r:
+        with requests.get(url, stream=True, headers=headers, allow_redirects=True) as r:
             r.raise_for_status()
             size = int(r.headers["Content-Length"])
             chunk_size = 8192

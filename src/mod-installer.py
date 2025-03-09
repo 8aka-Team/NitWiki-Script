@@ -4,6 +4,7 @@ from utils import *
 
 script_license()
 
+
 def get_latest_fabric_loader():
     url = "https://bmclapi2.bangbang93.com/fabric-meta/v2/versions/loader"
     response = requests.get(url)
@@ -110,8 +111,13 @@ def install_forge(mc_version, install_dir):
     installer_path = os.path.join(install_dir, "forge-installer.jar")
     download(response.url, installer_path)
 
+    print("3. 安装原版 Minecraft")
+    vanilla_url = f"https://bmclapi2.bangbang93.com/version/{mc_version}/server"
+    installer_path = os.path.join(install_dir, f"minecraft.{mc_version}.jar")
+    download(vanilla_url, installer_path)
+
     # 运行安装器
-    print("3. 运行安装器...")
+    print("4. 运行安装器...")
     subprocess.run([
         "java", "-jar", installer_path,
         "--installServer",
