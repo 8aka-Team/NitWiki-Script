@@ -289,12 +289,16 @@ def optimize_leaf_global(leaf):
         leaf["async"]["async-entity-tracker"]["compat-mode"] = True
     if danger:
         leaf["performance"]["throttle-hopper-when-full"]["enabled"] = True
+    if ask("开启异步 Tick"):
+        leaf["async"]["parallel-world-tracking"]["enabled"] = True
+        leaf["async"]["parallel-world-tracking"]["run-async-tasks-sync"] = True
+
     leaf["performance"]["use-virtual-thread-for-async-scheduler"] = True
     leaf["performance"]["reduce-packets"]["reduce-entity-move-packets"] = True
-    leaf["performance"]["optimize-minecart"]["enabled"] = True
     leaf["performance"]["faster-random-generator"]["enabled"] = True
     leaf["performance"]["faster-random-generator"]["enable-for-worldgen"] = True
     leaf["performance"]["create-snapshot-on-retrieving-blockstate"] = False
+    leaf["performance"]["faster-random-generator"]["use-direct-implementation"] = True
     if not danger:
         leaf["performance"]["faster-random-generator"]["use-legacy-random-for-slime-chunk"] = True
     dab = leaf["performance"]["dab"]
