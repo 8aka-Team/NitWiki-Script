@@ -1,6 +1,5 @@
 import os
 import sys
-from urllib import parse
 import requests
 import tqdm
 import yaml
@@ -83,9 +82,6 @@ def download(url, local_filepath):
                       "Chrome/111.0.0.0 Safari/537.36"
     }
     try:
-        p = parse.urlparse(url)
-        if p.netloc == "github.com":
-            url = "https://gh.ddlc.top/" + url
         with requests.get(url, stream=True, headers=headers, allow_redirects=True) as r:
             r.raise_for_status()
             size = int(r.headers["Content-Length"])

@@ -285,6 +285,7 @@ def optimize_leaf_global(leaf):
     leaf["async"]["async-locator"]["enabled"] = True
     leaf["async"]["async-playerdata-save"]["enabled"] = True
     leaf["async"]["async-chunk-send"]["enabled"] = True
+    leaf["async"]["async-block-finding"]["enabled"] = True
     if ask("使用 Citizens"):
         leaf["async"]["async-entity-tracker"]["compat-mode"] = True
     if danger:
