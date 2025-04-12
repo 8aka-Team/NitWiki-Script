@@ -1,47 +1,68 @@
 import os
 import shutil
 import subprocess
-import sys
-import urllib.request
-import zipfile
 import platform
-
-if platform.system() == 'Windows':
-    os.system("pip install rtoml-0.10.0-cp311-none-win_amd64.whl ")
-else:
-    os.system("pip install rtoml")
+import tempfile
+from concurrent.futures import ThreadPoolExecutor
 
 os.system("python3 -m pip install pyyaml tqdm psutil requests imageio rtoml elevate colorama nuitka ordered-set")
 
+# 准备输出目录
 if os.path.exists("dist"):
     shutil.rmtree("dist")
-
-os.mkdir("build")
-os.mkdir("dist")
-
+os.makedirs("dist", exist_ok=True)
 
 def build(file):
-    filepath = os.path.join(os.getcwd(), "src", file)
-    print(f"build {file}", flush=True)
-    args = ["python", "-m", "nuitka", "--onefile", filepath, "--assume-yes-for-downloads", "--output-dir=build"]
-    if platform.system() == 'Windows':
-        args.append("--windows-icon-from-ico=favicon.png")
-        args.append("--enable-plugins=upx")
-        args.append("--upx-binary=upx.exe")
-    if platform.system() == 'MacOS':
-        args.append("--macos-app-icon=favicon.png")
-    if platform.system() == 'Linux':
-        args.append("--linux-icon=favicon.png")
-    subprocess.call(args)
-    filename = os.path.splitext(file)[0]
-    for f in os.listdir(os.path.join(os.getcwd(), "build")):
-        if f.startswith(filename) and not os.path.isdir(os.path.join(os.getcwd(), "build", f)):
-            shutil.move(os.path.join(os.getcwd(), "build", f), os.path.join(os.getcwd(), "dist", f))
+    try:
+        file_path = os.path.join("src", file)
+        base_name = os.path.splitext(file)[0]
+        print(f"🏗️ 开始构建 {file}", flush=True)
 
+        # 创建临时构建目录
+        with tempfile.TemporaryDirectory(prefix=f"build_{base_name}_") as temp_dir:
+            # 构建命令参数
+            args = [
+                "python", "-m", "nuitka",
+                "--onefile",
+                file_path,
+                "--assume-yes-for-downloads",
+                f"--output-dir={temp_dir}",
+            ]
 
-for file in os.listdir(os.path.join(os.getcwd(), "src")):
-    if file != "utils.py":
-        build(file)
+            # 平台特定参数
+            if platform.system() == 'Windows':
+                args += [
+                    "--windows-icon-from-ico=favicon.png",
+                    "--enable-plugins=upx",
+                    "--upx-binary=upx.exe"
+                ]
+            elif platform.system() == 'Darwin':  # 修正MacOS判断
+                args.append("--macos-app-icon=favicon.png")
+            elif platform.system() == 'Linux':
+                args.append("--linux-icon=favicon.png")
 
-# 傻逼
-# 狗屎代碼
+            # 执行构建命令
+            subprocess.run(args, check=True)
+
+            # 移动生成文件到dist目录
+            for item in os.listdir(temp_dir):
+                src = os.path.join(temp_dir, item)
+                if item.startswith(base_name) and os.path.isfile(src):
+                    dest = os.path.join("dist", item)
+                    shutil.move(src, dest)
+                    print(f"✅ 已移动 {item} 到 dist 目录", flush=True)
+
+        print(f"🎉 成功构建 {file}", flush=True)
+    except Exception as e:
+        print(f"❌ 构建 {file} 失败: {str(e)}", flush=True)
+
+if __name__ == "__main__":
+    # 获取需要构建的文件列表
+    src_files = [
+        f for f in os.listdir("src")
+        if f != "utils.py" and os.path.isfile(os.path.join("src", f))
+    ]
+    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+        executor.map(build, src_files)
+
+    print("\n所有构建任务已完成，输出目录: dist/")
