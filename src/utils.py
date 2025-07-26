@@ -17,7 +17,7 @@ def script_license():
     print("\033[92m作者:8aka-Team\033[0m")
     print("\033[92m仓库地址:https://github.com/8aka-Team/NitWiki-Script\033[0m")
     print("\033[91m未经许可,禁止用于商业用途\033[0m")
-    requests.get("https://count.kjchmc.cn/get/@:NitWikit-Script")
+    
 
 
 def handler(filename, loader=lambda fp: yaml.load(fp, Loader=Loader), dumper=yaml.dump):
