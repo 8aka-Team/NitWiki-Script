@@ -67,7 +67,7 @@ if __name__ == "__main__":
         f for f in os.listdir("src")
         if f != "utils.py" and os.path.isfile(os.path.join("src", f))
     ]
-    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
+    with ThreadPoolExecutor(max_workers=os.cpu_count() if platform.system() != 'Windows' else 1) as executor:
         executor.map(build, src_files)
 
     print("\n所有构建任务已完成，输出目录: dist/")
