@@ -37,9 +37,7 @@ def build(file):
             # 平台特定参数
             if platform.system() == 'Windows':
                 args += [
-                    "--windows-icon-from-ico=favicon.png",
-                    "--enable-plugins=upx",
-                    "--upx-binary=upx.exe"
+                    "--windows-icon-from-ico=favicon.png"
                 ]
             elif platform.system() == 'Darwin':  # 修正MacOS判断
                 args.append("--macos-app-icon=favicon.png")
